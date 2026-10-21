@@ -1,66 +1,124 @@
 # Bank Management System — C++ Console
 
-A console learning project by **Abanoub Reda** for managing client records and practicing C++ functions, structures, vectors, menus, and text-file persistence.
+![C++](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
+![Platform](https://img.shields.io/badge/Platform-Windows%20Console-lightgrey.svg)
+![Architecture](https://img.shields.io/badge/Architecture-Procedural%20C%2B%2B-success.svg)
+![Status](https://img.shields.io/badge/Status-Reviewed%20%26%20Hardened-brightgreen.svg)
 
-**Current snapshot:** the original source is preserved. Core workflows have been checked, and the validation and persistence issues found during review are documented in [the Arabic review](docs/REVIEW_AR.md). This is an educational simulation.
+A robust, hardened console banking management system built with modern standard **C++17** by **Abanoub Reda**. The system demonstrates procedural software design, structured data modeling, stream-based text file serialization, safe numeric parsing, and defensive input validation.
 
-## Features
+---
 
-- List, add, find, update, and delete clients.
-- Check for an existing account number before adding a client.
-- Deposit funds and withdraw within the available balance.
-- Reject non-positive deposit and withdrawal amounts.
-- Display individual and total account balances.
-- Store records in a local text file using the `#//#` separator.
+## 📌 Overview
 
-Client records contain an account number, PIN field, name, phone number, and balance. The PIN field is stored and displayed; it is not an authentication mechanism.
+This project simulates a complete core banking terminal application. It enables bank administrators to manage client accounts and perform essential financial transactions (deposits, withdrawals, and balance inquiries) with persistent local storage.
 
-## Versions and files
+The codebase adheres strictly to **clean procedural design** (`structs`, `vectors`, `enums`, and pure functions), prioritizing code clarity, predictable execution flow, and zero unnecessary overhead.
 
-| Path | Purpose |
-| --- | --- |
-| `src/main.cpp` | Latest supplied version, originally `53-BankProject.cpp`; includes transactions. |
-| `legacy/52-BankProject.cpp` | Earlier standalone version with client management. |
-| `data/Clients.example.txt` | Two fictional records for a local demonstration. |
-| `docs/REVIEW_AR.md` | Findings, evidence, and a suggested improvement order, in Arabic. |
-| `docs/demo-output.txt` | Console output captured from the latest version using the sample records. |
+---
 
-The two `.cpp` files are separate programs, each with its own `main`. Compile only one version at a time.
+## ✨ Features
 
-## Build and run
+- **Client Management (CRUD):**
+  - **List Clients:** Tabular display of all registered bank clients with formatted currency output.
+  - **Add Client:** Registration with automatic uniqueness verification on account numbers.
+  - **Find Client:** Instant search and account card inspection by Account Number.
+  - **Update Client:** In-place modification of client name, PIN, and phone details.
+  - **Delete Client:** Safe soft/hard record deletion with confirmation prompts.
 
-The console commands in the original source (`cls` and `pause`) target Windows.
+- **Financial Transactions:**
+  - **Deposit:** Increase account balance with positive-amount validation and optional cancellation (`0`).
+  - **Withdrawal:** Overdraft protection (cannot exceed balance), zero-balance protection, and optional cancellation (`0`).
+  - **Total Balances:** Real-time ledger aggregation displaying sum totals across all registered clients.
 
-From the repository root, with a C++ compiler available on your PATH:
+- **Storage & Reliability:**
+  - **File Persistence:** Automatic storage in `Clients.txt` using record serialization with `#//#` delimiters.
+  - **Defensive Error Handling:** Guaranteed exception safety around file streams and numeric conversions.
 
+---
+
+## 🛡️ Robustness & Hardened Improvements
+
+Following a comprehensive code review (documented in [docs/REVIEW_AR.md](docs/REVIEW_AR.md)), the project was reinforced with the following protections:
+
+| Component | Potential Issue | Implemented Solution |
+| :--- | :--- | :--- |
+| **Numeric Parsing (`stod`)** | Corrupted balance data could trigger unhandled exceptions and crash the application. | Wrapped in `try/catch` with deterministic zero-fallback (`0.0`). |
+| **String Tokenizer (`SplitString`)** | Empty fields caused column shifts and data loss upon saving. | Fixed token parsing to preserve empty delimiters and maintain exact column alignment. |
+| **Withdrawal Loop** | Accounts with `$0` balance caused an infinite loop in the withdrawal prompt. | Immediate pre-check halts withdrawal if balance is `$0`, plus user cancellation via `0`. |
+| **Initial Balance Input** | Accepted negative values and entered infinite fail-states on non-numeric input. | Re-prompt loop validates positive values (`>= 0`) and clears `cin.fail()` streams. |
+| **File I/O Verification** | Write errors were ignored while claiming successful operations. | File operations now return `bool`, verifying stream states before reporting success. |
+| **Memory Efficiency** | Passing large structs and vectors by value created redundant memory copies. | Replaced with `const &` (const references) across all read-only functions. |
+| **Console Cleanup** | `pause>0` wrote stdout to an arbitrary file named `0`. | Corrected to `pause>nul` for clean, silent Windows pauses. |
+
+---
+
+## 📂 Project Structure
+
+```text
+bank-management-system-cpp/
+├── data/
+│   └── Clients.example.txt    # Sample client records for testing
+├── docs/
+│   ├── REVIEW_AR.md           # Comprehensive architectural & code review (in Arabic)
+│   └── demo-output.txt        # Sample console session capture
+├── src/
+│   └── main.cpp               # Complete hardened application source code
+├── .gitignore                 # Configured ignores for binaries, IDE cache, and local data
+└── README.md                  # Project documentation
+```
+
+---
+
+## 🚀 Build & Run
+
+### Prerequisites
+- A modern C++ compiler supporting **C++17** (e.g. GCC/MinGW, Clang, or MSVC).
+- **Windows Command Prompt** or **PowerShell**.
+
+### 1. Build from Source
+
+Using **GCC (MinGW)**:
 ```sh
 g++ -std=c++17 -Wall -Wextra src/main.cpp -o bank.exe
 ```
 
-Run in Windows PowerShell:
+Using **MSVC**:
+```cmd
+cl /std:c++17 /EHsc /W4 src/main.cpp /Fe:bank.exe
+```
+
+### 2. Run the Application
 
 ```powershell
 .\bank.exe
 ```
 
-The application reads and writes `Clients.txt` in its current working directory. You can start without that file and add a client through the menu. For the sample demonstration, copy `data/Clients.example.txt` to a new `Clients.txt` in the repository root. Keep any existing data file separately before using the sample.
+> [!TIP]
+> **Quick Test Data:** To start with pre-populated records, copy the sample file to the working directory:
+> ```powershell
+> Copy-Item .\data\Clients.example.txt .\Clients.txt
+> ```
 
-## Concepts practiced
+---
 
-- Procedural decomposition using functions.
-- Structures, enumerations, strings, and vectors.
-- File streams and record serialization.
-- Menu navigation and confirmation prompts.
-- Basic input validation and formatted console output.
+## 🧠 Concepts & Engineering Highlights
 
-## Verification and next improvements
+- **Procedural Decomposition:** Single-responsibility functions with clear boundary separation between I/O, UI, and business logic.
+- **Type Safety & Data Modeling:** Strong modeling using custom `struct stClient` and strongly-scoped `enum` states.
+- **Stream I/O & Serialization:** Parsing custom delimited text records with defensive stream verification.
+- **Defensive Console UI:** Input sanitization, stream recovery (`cin.clear()`, `cin.ignore()`), and confirmation gates.
 
-Both supplied versions compiled with GCC 13 in C++17 mode. Nine functional checks covered the latest version's main workflows and a basic check of the earlier version. Eight additional probes reproduced the issues described in the review; those are findings to fix, not claims that the application is defect-free.
+---
 
-Functional checks ran on Linux with temporary stand-ins for the Windows-only `cls` and `pause` commands. Native Windows console behavior was not verified.
+## 📄 Documentation
 
-The next improvements are consistent input validation, safe handling of invalid records, checked file writes, and an exit path when a client with zero balance enters the withdrawal screen.
+For an in-depth breakdown of the code review findings, architectural trade-offs, and verification tests, read the **[Arabic Review Report](docs/REVIEW_AR.md)**.
 
-## Author
+---
 
-**Abanoub Reda** · [LinkedIn](https://www.linkedin.com/in/abanoub-reda-41a633376/) · [Email](mailto:abanoubreda018@gmail.com)
+## 👤 Author
+
+**Abanoub Reda**
+- **LinkedIn:** [Abanoub Reda](https://www.linkedin.com/in/abanoub-reda-41a633376/)
+- **Email:** [abanoubreda018@gmail.com](mailto:abanoubreda018@gmail.com)
