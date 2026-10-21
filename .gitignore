@@ -1,0 +1,22 @@
+# Local client data and the output file produced by pause>0
+/Clients.txt
+/0
+
+# Build output
+/build/
+/bank
+/bank.exe
+*.o
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.idb
+*.pch
+*.ipch
+*.tlog
+
+# Local IDE state
+.vs/
+*.user
+*.suo
